@@ -1,14 +1,123 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
-import { Link } from "react-router-dom";
+import { Toaster, toast } from "react-hot-toast";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import AnimationWrapper from "../common/Page-animation";
+import axios from "axios";
+import { storeInSession } from "../common/session";
+import { UserContext } from "../App";
+import { authWithGoogle } from "../common/firebase";
 
 const UserAuthForm = ({ type }) => {
-  return (
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("axxees", access_token);
+    access_token && navigate("/");
+  }, []);
+
+  const {
+    userAuth: { access_token },
+    setUserAuth,
+  } = useContext(UserContext);
+
+  console.log(access_token);
+
+  const signup = (fullname, email, password) => {
+    // console.log(email, password, fullname);
+    axios
+      .post(`http://localhost:3000/auth/signup`, {
+        fullname,
+        email,
+        password,
+      })
+      .then(({ data }) => {
+        storeInSession("user", JSON.stringify(data));
+        setUserAuth(data);
+        console.log(sessionStorage);
+      })
+      .catch(({ response }) => {
+        console.log(response);
+        toast.error(response.data.error);
+      });
+  };
+
+  const signin = (email, password) => {
+    axios
+      .post(`${import.meta.env.VITE_BASE_URL}/auth/signin`, {
+        email,
+        password,
+      })
+      .then(({ data }) => {
+        storeInSession("user", JSON.stringify(data));
+        setUserAuth(data);
+      })
+      .catch(({ response }) => {
+        console.log(response);
+        toast.error(response.data.error);
+      });
+  };
+
+  const handleGoogleAuth = (e) => {
+    e.preventDefault();
+    authWithGoogle()
+      .then((user) => {
+        axios
+          .post(`${import.meta.env.VITE_BASE_URL}/auth/google`, {
+            access_token: user.accessToken,
+          })
+          .then(({ data }) => {
+            storeInSession("user", JSON.stringify(data));
+            setUserAuth(data);
+          })
+          .catch(({ response }) => {
+            console.log(response);
+            toast.error(response.data.error);
+          });
+      })
+      .catch((err) => {
+        toast.error("Trouble Login using Google");
+        return console.log(err);
+      });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+    console.log(fullname, email, password);
+
+    if (type === "sign-up" && fullname.length < 3) {
+      return toast.error("Fullname must be at least 3 letters or more;");
+    }
+
+    if (!email.length) {
+      return toast.error("Enter Email");
+    }
+
+    if (!emailRegex.test(email)) {
+      return toast.error("Email is invalid!");
+    }
+
+    if (password.length < 6) {
+      return toast.error("Password must be at least 6 letters or more");
+    }
+
+    if (type === "sign-in") signin(email, password);
+    else signup(fullname, email, password);
+  };
+  return access_token ? (
+    <Navigate to="/" />
+  ) : (
     <AnimationWrapper keyValue={type}>
       <section className="h-cover flex items-center justify-center">
-        <form className="w-[80%] max-w-[400px]">
+        <form className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
+          <Toaster />
           <h1 className="text-4xl font-gelasio capitalize text-center mb-24">
             {type === "sign-in" ? "Welcome back" : "Join us today"}
           </h1>
@@ -19,6 +128,7 @@ const UserAuthForm = ({ type }) => {
               type="text"
               placeholder="Full Name"
               icon="fi-rr-user"
+              onChange={(e) => setFullname(e.target.value)}
             />
           )}
 
@@ -27,6 +137,7 @@ const UserAuthForm = ({ type }) => {
             type="email"
             placeholder="Email"
             icon="fi-rr-envelope"
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <InputBox
@@ -34,6 +145,7 @@ const UserAuthForm = ({ type }) => {
             type="password"
             placeholder="Password"
             icon="fi-rr-key"
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <button className="btn-dark center mt-14 ">
@@ -46,7 +158,10 @@ const UserAuthForm = ({ type }) => {
             <hr className="w-1/2 border-black" />
           </div>
 
-          <button className="btn-dark flex items-center justify-center gap-4 w-[90%] center">
+          <button
+            className="btn-dark flex items-center justify-center gap-4 w-[90%] center"
+            onClick={handleGoogleAuth}
+          >
             <img src={googleIcon} alt="googleIcon" className="w-5" />
             Continue with google
           </button>
@@ -65,7 +180,6 @@ const UserAuthForm = ({ type }) => {
               <Link to="/signin" className="underline text-black text-xl ml-1">
                 Sign in here
               </Link>
-              `
             </p>
           )}
         </form>
