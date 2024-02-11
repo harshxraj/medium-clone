@@ -17,7 +17,6 @@ const UserAuthForm = ({ type }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("axxees", access_token);
     access_token && navigate("/");
   }, []);
 
@@ -25,8 +24,6 @@ const UserAuthForm = ({ type }) => {
     userAuth: { access_token },
     setUserAuth,
   } = useContext(UserContext);
-
-  console.log(access_token);
 
   const signup = (fullname, email, password) => {
     // console.log(email, password, fullname);
