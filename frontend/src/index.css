@@ -131,3 +131,18 @@
 .cdx-settings-button[data-tune="stretched"] {
   display: none;
 }
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  /* background: linear-gradient(black, white); */
+  background: linear-gradient(#000000, #ffffff, #000000);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}

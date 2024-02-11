@@ -1,21 +1,29 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
-import AnimationWrapper from "../../common/Page-animation";
+import { UserContext } from "../../App";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setDescription,
   setEditorState,
   setTile,
   setTags,
+  resetBlogState,
 } from "../../redux/blogEditorSlice";
 import Tag from "../ui/Tag";
+import AnimationWrapper from "../../common/Page-animation";
 
 const PublishForm = () => {
+  const {
+    userAuth: { access_token },
+  } = useContext(UserContext);
   const textEditor = useSelector((store) => store.blogEditor.textEditor);
   const { title, banner, des, content, tags } = useSelector(
     (store) => store.blogEditor
   );
   console.log("tags", tags);
+  let navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -39,6 +47,7 @@ const PublishForm = () => {
     if (e.keyCode == 13 || e.keyCode == 188) {
       e.preventDefault();
       let tag = e.target.value;
+      tag = tag.trim();
 
       if (tags.length < tagLimit) {
         if (!tags.includes(tag) && tag.length) {
@@ -49,6 +58,62 @@ const PublishForm = () => {
       }
       e.target.value = "";
     }
+  };
+
+  const handlePublish = (e) => {
+    if (e.target.classList.contains("disable")) {
+      return;
+    }
+    if (!title.length) {
+      return toast.error("Write blog title before publishing!");
+    }
+
+    if (!des.length || des.length > characterLimit) {
+      return toast.error(
+        `Write a description within ${characterLimit} characters to publish!`
+      );
+    }
+
+    if (!tags.length) {
+      return toast.error("Enter atleast 1 tag to help us rank you blog!");
+    }
+
+    let loadingToast = toast.loading("Publishing...");
+
+    e.target.classList.add("disable");
+
+    let blogObj = {
+      title,
+      banner,
+      des,
+      content,
+      tags,
+      draft: false,
+    };
+
+    axios
+      .post(`${import.meta.env.VITE_BASE_URL}/blog/create`, blogObj, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+      .then(() => {
+        e.target.classList.remove("disable");
+        toast.dismiss(loadingToast);
+        toast.success("Published👍");
+
+        dispatch(resetBlogState());
+
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
+      })
+      .catch(({ response }) => {
+        e.target.classList.remove("disable");
+        toast.dismiss(loadingToast);
+
+        return toast.error(response.data.error);
+      });
   };
   return (
     <AnimationWrapper>
@@ -115,8 +180,20 @@ const PublishForm = () => {
               onKeyDown={handleKeyDown}
             />
             {tags.map((tag, i) => {
-              return <Tag tag={tag} key={tag} />;
+              return <Tag tag={tag} key={tag} tagIndex={i} />;
             })}
+          </div>
+          <p className="mt-1 mb-4 text-dark-grey text-right">
+            {tagLimit - tags.length} Tags left!
+          </p>
+
+          <div className="flex justify-center">
+            <button
+              onClick={handlePublish}
+              className="btn-dark px-8 text-center"
+            >
+              Publish
+            </button>
           </div>
         </div>
       </section>

@@ -29,7 +29,6 @@ const Tag = ({ tag }) => {
 
   const handleTagDelete = () => {
     const newTags = tags.filter((t) => t !== tag);
-    console.log("newTags", newTags);
     dispatch(setTags(newTags));
   };
 
@@ -37,7 +36,7 @@ const Tag = ({ tag }) => {
     <div className="relative p-2 mt-2 mr-2 bg-white rounded-full inline-block hover:bg-opacity-50 pr-10">
       <div
         className="outline-none"
-        contentEditable="true"
+        // contentEditable="true"
         onInput={handleInput}
         dangerouslySetInnerHTML={{ __html: content }}
       />

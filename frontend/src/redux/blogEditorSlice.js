@@ -40,6 +40,7 @@ const blogEditorSlice = createSlice({
         state.tags = payload;
       }
     },
+    resetBlogState: () => initialState,
   },
 });
 
@@ -50,5 +51,6 @@ export const {
   setBlog,
   setDescription,
   setTags,
+  resetBlogState,
 } = blogEditorSlice.actions;
 export default blogEditorSlice.reducer;
