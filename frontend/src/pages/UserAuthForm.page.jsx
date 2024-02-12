@@ -5,9 +5,9 @@ import { Toaster, toast } from "react-hot-toast";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import AnimationWrapper from "../common/Page-animation";
 import axios from "axios";
-import { storeInSession } from "../common/session";
-import { UserContext } from "../App";
 import { authWithGoogle } from "../common/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { authenticate } from "../redux/authSlice";
 
 const UserAuthForm = ({ type }) => {
   const [fullname, setFullname] = useState("");
@@ -15,28 +15,21 @@ const UserAuthForm = ({ type }) => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    access_token && navigate("/");
-  }, []);
-
-  const {
-    userAuth: { access_token },
-    setUserAuth,
-  } = useContext(UserContext);
+  const user = useSelector((store) => store.auth.user);
+  const access_token = useSelector((store) => store.auth.access_token);
 
   const signup = (fullname, email, password) => {
     // console.log(email, password, fullname);
     axios
-      .post(`http://localhost:3000/auth/signup`, {
+      .post(`${import.meta.env.VITE_BASE_URL}/auth/signup`, {
         fullname,
         email,
         password,
       })
       .then(({ data }) => {
-        storeInSession("user", JSON.stringify(data));
-        setUserAuth(data);
-        console.log(sessionStorage);
+        dispatch(authenticate(data));
       })
       .catch(({ response }) => {
         console.log(response);
@@ -51,8 +44,7 @@ const UserAuthForm = ({ type }) => {
         password,
       })
       .then(({ data }) => {
-        storeInSession("user", JSON.stringify(data));
-        setUserAuth(data);
+        dispatch(authenticate(data));
       })
       .catch(({ response }) => {
         console.log(response);
@@ -69,8 +61,7 @@ const UserAuthForm = ({ type }) => {
             access_token: user.accessToken,
           })
           .then(({ data }) => {
-            storeInSession("user", JSON.stringify(data));
-            setUserAuth(data);
+            dispatch(authenticate(data));
           })
           .catch(({ response }) => {
             console.log(response);

@@ -1,17 +1,15 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import logo from "../imgs/logo.png";
 import { Link } from "react-router-dom";
-import { UserContext } from "../App";
 import UsernavigationPanel from "./user-navigation.component";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [seachBoxVisible, setSearchBoxVisible] = useState(false);
   const [userNavPanel, setUserNavPanel] = useState(false);
 
-  const {
-    userAuth,
-    userAuth: { access_token, profile_img },
-  } = useContext(UserContext);
+  const user = useSelector((store) => store.auth.user);
+  const access_token = useSelector((store) => store.auth.access_token);
 
   const handleUserNavPanel = () => {
     setUserNavPanel((curr) => !curr);
@@ -70,7 +68,7 @@ const Navbar = () => {
             >
               <button className="w-12 h-12 mt-1">
                 <img
-                  src={profile_img}
+                  src={user.profile_img}
                   alt="profileImg"
                   className="w-full h-full object-cover rounded-full"
                 />

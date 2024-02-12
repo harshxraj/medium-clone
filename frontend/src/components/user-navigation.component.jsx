@@ -1,18 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import AnimationWrapper from "../common/Page-animation";
-import { UserContext } from "../App";
-import { removeFromSession } from "../common/session";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const UsernavigationPanel = () => {
-  const {
-    userAuth: { username },
-    setUserAuth,
-  } = useContext(UserContext);
+  const user = useSelector((store) => store.auth.user);
+  const dispatch = useDispatch();
 
   const signOut = () => {
-    removeFromSession("user");
-    setUserAuth({ access_token: null });
+    dispatch(logout());
   };
 
   return (
@@ -25,7 +22,7 @@ const UsernavigationPanel = () => {
           <i className="fi fi-rr-file edit"></i>
           <p>Write</p>
         </Link>
-        <Link to={`/user/${username}`} className="link pl-8 py-4">
+        <Link to={`/user/${user.username}`} className="link pl-8 py-4">
           Profile
         </Link>
         <Link to={`/dashboard/blogs`} className="link pl-8 py-4">
@@ -41,7 +38,7 @@ const UsernavigationPanel = () => {
           className="text-left hover:bg-grey w-full pl-8 py-4"
         >
           <h1 className="font-bold text-xl mb-1">Sign Out</h1>
-          <p className="text-dark-grey">@{username}</p>
+          <p className="text-dark-grey">@{user.username}</p>
         </button>
       </div>
     </AnimationWrapper>

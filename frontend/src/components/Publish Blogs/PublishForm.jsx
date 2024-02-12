@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
-import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,9 +14,7 @@ import Tag from "../ui/Tag";
 import AnimationWrapper from "../../common/Page-animation";
 
 const PublishForm = () => {
-  const {
-    userAuth: { access_token },
-  } = useContext(UserContext);
+  const access_token = useSelector((store) => store.auth.access_token);
   const textEditor = useSelector((store) => store.blogEditor.textEditor);
   const { title, banner, des, content, tags } = useSelector(
     (store) => store.blogEditor

@@ -16,19 +16,14 @@ import { tools } from "../../utils/tools";
 import { toast, Toaster } from "react-hot-toast";
 import { editorContext } from "../../pages/Editor";
 import axios from "axios";
-import { UserContext } from "../../App";
 
 const BlogEditor = () => {
   const dispatch = useDispatch();
   const blogEditor = useSelector((store) => store.blogEditor);
   const { title, banner, des, content, tags } = blogEditor;
-  // console.log(title, banner, des);
-  console.log(content);
 
   const { textEditor, setTextEditor } = useContext(editorContext);
-  const {
-    userAuth: { access_token },
-  } = useContext(UserContext);
+  const access_token = useSelector((store) => store.auth.access_token);
   const navigate = useNavigate();
 
   useEffect(() => {
