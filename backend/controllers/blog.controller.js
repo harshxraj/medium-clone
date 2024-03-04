@@ -80,6 +80,8 @@ export const createBlog = (req, res) => {
 };
 
 export const getLatestBlogs = (req, res) => {
+  let { page } = req.body;
+
   let maxLimit = 5;
   Blog.find({ draft: false })
     .populate(
@@ -88,6 +90,7 @@ export const getLatestBlogs = (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page - 1) * maxLimit)
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -114,6 +117,56 @@ export const getTrendingBlogs = (req, res) => {
       return res.status(200).json({ blogs });
     })
     .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+};
+
+export const searchBlogs = (req, res) => {
+  let { tag, page } = req.body;
+
+  let findQuery = { tags: tag, draft: false };
+
+  let maxLimit = 3;
+
+  Blog.find(findQuery)
+    .populate(
+      "author",
+      "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({ publishedAt: -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page - 1) * maxLimit)
+    .limit(maxLimit)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((err) => {
+      return res.status(500).json("Error while getting latest blogs!");
+    });
+};
+
+export const getLatestBlogsCount = (req, res) => {
+  Blog.countDocuments({ draft: false })
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ error: err.message });
+    });
+};
+
+export const searchBlogsCount = (req, res) => {
+  const { tag } = req.body;
+
+  let findQuery = { tags: tag, draft: false };
+
+  Blog.countDocuments(findQuery)
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((err) => {
+      console.log(err);
       return res.status(500).json({ error: err.message });
     });
 };

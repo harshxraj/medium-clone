@@ -51,7 +51,7 @@ const BlogPostCard = ({ content, author }) => {
         <img
           src={banner}
           alt=""
-          className="w-full h-full aspect-square object-cover"
+          className="w-full h-full aspect-square object-cover rounded-md"
         />
       </div>
     </Link>
