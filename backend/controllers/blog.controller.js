@@ -122,9 +122,17 @@ export const getTrendingBlogs = (req, res) => {
 };
 
 export const searchBlogs = (req, res) => {
-  let { tag, page } = req.body;
+  let { tag, query, page, author } = req.body;
 
-  let findQuery = { tags: tag, draft: false };
+  let findQuery;
+
+  if (tag) {
+    findQuery = { tags: tag, draft: false };
+  } else if (query) {
+    findQuery = { title: new RegExp(query, "i"), draft: false };
+  } else if (author) {
+    findQuery = { author, draft: false };
+  }
 
   let maxLimit = 3;
 
@@ -157,9 +165,17 @@ export const getLatestBlogsCount = (req, res) => {
 };
 
 export const searchBlogsCount = (req, res) => {
-  const { tag } = req.body;
+  const { tag, query, author } = req.body;
 
-  let findQuery = { tags: tag, draft: false };
+  let findQuery;
+
+  if (tag) {
+    findQuery = { tags: tag, draft: false };
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, "i") };
+  } else if (author) {
+    findQuery = { author, draft: false };
+  }
 
   Blog.countDocuments(findQuery)
     .then((count) => {

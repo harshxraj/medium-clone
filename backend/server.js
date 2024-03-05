@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.routes.js";
 import bodyParser from "body-parser";
 import connection from "./db/connection.js";
 import blogRouter from "./routes/blog.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 const server = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ server.use(cors());
 
 server.use("/auth", authRouter);
 server.use("/blog", blogRouter);
+server.use("/user", userRouter);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

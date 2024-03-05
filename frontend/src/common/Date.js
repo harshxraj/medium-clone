@@ -22,3 +22,12 @@ export const getDay = (timestamp) => {
 
   return `${dayOfWeek}, ${month} ${dayOfMonth}`;
 };
+
+export const getFullDay = (timestamp) => {
+  const date = new Date(timestamp);
+  const month = months[date.getMonth()];
+  const dayOfMonth = date.getDate();
+  const year = date.getFullYear();
+
+  return `${dayOfMonth} ${month} ${year}`;
+};
