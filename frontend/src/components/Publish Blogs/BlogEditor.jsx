@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import logo from "../../imgs/logo.png";
 import AnimationWrapper from "../../common/Page-animation";
 import defaultBanner from "../../imgs/blog banner.png";
@@ -21,6 +21,7 @@ const BlogEditor = () => {
   const dispatch = useDispatch();
   const blogEditor = useSelector((store) => store.blogEditor);
   const { title, banner, des, content, tags } = blogEditor;
+  const { id: blog_id } = useParams();
 
   const { textEditor, setTextEditor } = useContext(editorContext);
   const access_token = useSelector((store) => store.auth.access_token);
@@ -31,7 +32,9 @@ const BlogEditor = () => {
       setTextEditor(
         new EditorJS({
           holderId: "textEditor",
-          data: content,
+          data: Array.isArray(content.content)
+            ? content.content[0]
+            : content.content,
           tools: tools,
           placeholder: "Let's Write something awesome!",
         })
@@ -93,12 +96,12 @@ const BlogEditor = () => {
   };
 
   const handlePublish = () => {
-    // if (!blogEditor.banner) {
-    //   return toast.error("Upload a blog banner to publish it!");
-    // }
-    // if (!title.length) {
-    //   return toast.error("Enter blog title to publish it!");
-    // }
+    if (!blogEditor.banner) {
+      return toast.error("Upload a blog banner to publish it!");
+    }
+    if (!title.length) {
+      return toast.error("Enter blog title to publish it!");
+    }
     if (textEditor.isReady) {
       textEditor
         .save()
@@ -140,12 +143,18 @@ const BlogEditor = () => {
           draft: true,
         };
 
+        console.log(blog_id);
+
         axios
-          .post(`${import.meta.env.VITE_BASE_URL}/blog/create`, blogObj, {
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-            },
-          })
+          .post(
+            `${import.meta.env.VITE_BASE_URL}/blog/create`,
+            { ...blogObj, id: blog_id },
+            {
+              headers: {
+                Authorization: `Bearer ${access_token}`,
+              },
+            }
+          )
           .then(() => {
             e.target.classList.remove("disable");
             toast.dismiss(loadingToast);

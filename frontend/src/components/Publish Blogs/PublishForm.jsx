@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,8 +19,8 @@ const PublishForm = () => {
   const { title, banner, des, content, tags } = useSelector(
     (store) => store.blogEditor
   );
-  console.log("tags", tags);
   let navigate = useNavigate();
+  const { id: blog_id } = useParams();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -89,11 +89,15 @@ const PublishForm = () => {
     };
 
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog/create`, blogObj, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      })
+      .post(
+        `${import.meta.env.VITE_BASE_URL}/blog/create`,
+        { ...blogObj, id: blog_id },
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      )
       .then(() => {
         e.target.classList.remove("disable");
         toast.dismiss(loadingToast);

@@ -59,7 +59,6 @@ const BlogContent = ({ block }) => {
   }
 
   if (type == "image") {
-    console.log(block);
     return <Img url={data.file.url} caption={data.caption} />;
   }
 

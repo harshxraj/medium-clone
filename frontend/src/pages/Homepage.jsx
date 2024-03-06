@@ -117,7 +117,6 @@ const Homepage = () => {
                 <Loader />
               ) : blogs.results.length ? (
                 blogs.results.map((blog, i) => {
-                  console.log(blog.author);
                   return (
                     <AnimationWrapper
                       key={i}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AnimationWrapper from "../common/Page-animation";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
+import { resetSelectedBlog, setUserLiked } from "../redux/selectedBlogSlice";
 
 const UsernavigationPanel = () => {
   const user = useSelector((store) => store.auth.user);
@@ -10,6 +11,7 @@ const UsernavigationPanel = () => {
 
   const signOut = () => {
     dispatch(logout());
+    dispatch(setUserLiked(false));
   };
 
   return (

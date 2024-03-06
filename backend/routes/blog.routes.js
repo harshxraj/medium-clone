@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createBlog,
+  getBlog,
   getLatestBlogs,
   getLatestBlogsCount,
   getTrendingBlogs,
@@ -18,6 +19,9 @@ blogRouter.post("/search-blogs-count", searchBlogsCount);
 
 blogRouter.post("/search-blogs", searchBlogs);
 
+blogRouter.post("/", getBlog);
 blogRouter.post("/create", Auth, createBlog);
 
 export default blogRouter;
+
+// getting the blog -> import.meta.env.VITE_BASE_URL/blog/

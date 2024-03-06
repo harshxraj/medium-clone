@@ -124,7 +124,7 @@ const ProfilePage = () => {
 
             <p>
               {total_posts.toLocaleString()} Blogs -{" "}
-              {total_reads.toLocaleString()} Posts
+              {total_reads.toLocaleString()} Reads
             </p>
 
             <div className="flex gap-4 mt-2">
