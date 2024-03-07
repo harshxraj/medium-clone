@@ -6,12 +6,15 @@ export const initialState = {
   des: "",
   content: [],
   tags: [],
+  comments: {},
   author: { personal_info: {} },
   banner: "",
   publishedAt: "",
   blog_id: null,
   activity: {},
   isLikedByUser: "",
+  commentWrapper: false,
+  totalParentCommentsLoaded: 0,
 };
 const selectedBlogSlice = createSlice({
   name: "selectedBlog",
@@ -29,6 +32,7 @@ const selectedBlogSlice = createSlice({
         publishedAt,
         blog_id,
         activity,
+        comments,
       } = payload;
 
       state._id = _id;
@@ -41,6 +45,7 @@ const selectedBlogSlice = createSlice({
       state.publishedAt = publishedAt;
       state.blog_id = blog_id;
       state.activity = activity;
+      state.comments = comments;
     },
     resetSelectedBlog: (state) => {
       Object.assign(state, initialState);
@@ -54,6 +59,23 @@ const selectedBlogSlice = createSlice({
     setUserLiked: (state, { payload }) => {
       state.isLikedByUser = payload;
     },
+    setTotalParentCommentsLoaded: (state, { payload }) => {
+      state.totalParentCommentsLoaded =
+        state.totalParentCommentsLoaded + payload;
+    },
+    toggleCommentWrapper: (state) => {
+      state.commentWrapper = !state.commentWrapper;
+    },
+    setComments: (state, { payload }) => {
+      state.comments = { ...state.comments, results: payload };
+    },
+    setActivity: (state, { payload }) => {
+      state.activity = {
+        ...state.activity,
+        total_comments: state.activity.total_comments + 1,
+        total_parent_comments: state.activity.total_parent_comments + payload,
+      };
+    },
   },
 });
 
@@ -63,5 +85,9 @@ export const {
   toggleLikedByUser,
   setLike,
   setUserLiked,
+  setTotalParentCommentsLoaded,
+  toggleCommentWrapper,
+  setComments,
+  setActivity,
 } = selectedBlogSlice.actions;
 export default selectedBlogSlice.reducer;

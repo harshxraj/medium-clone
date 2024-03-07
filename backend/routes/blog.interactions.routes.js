@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  addComment,
+  getComments,
   isLikedByUser,
   likeBlog,
 } from "../controllers/blog.inteactions.controllers.js";
@@ -10,7 +12,11 @@ const blogInteractionRouter = express.Router();
 blogInteractionRouter.post("/like", Auth, likeBlog);
 blogInteractionRouter.post("/isLiked", Auth, isLikedByUser);
 
+blogInteractionRouter.post("/comment", Auth, addComment);
+blogInteractionRouter.post("/comment/get", getComments);
+
 export default blogInteractionRouter;
 
 // Like the blog `${import.meta.env.VITE_BASE_URL}/blog/like`
 // Checking if the user has liked that blog - /isLiked
+// `${import.meta.env.VITE_BASE_URL}/blog/comment`

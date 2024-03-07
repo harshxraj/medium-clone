@@ -28,7 +28,7 @@ const BlogPostCard = ({ content, author }) => {
             className="w-6 h-6 rounded-full"
           />
           <p className="line-clamp-1">
-            {fullname} @{username}
+            <span className="capitalize">{fullname}</span> @{username}
           </p>
           <p className="min-w-fit">{getDay(publishedAt)}</p>
         </div>

@@ -45,7 +45,7 @@ export const createBlog = (req, res) => {
       .replace(/\s+/g, "-")
       .trim() + nanoid();
 
-  console.log(id, blog_id);
+  // console.log(id, blog_id);
 
   if (id) {
     Blog.findOneAndUpdate(
