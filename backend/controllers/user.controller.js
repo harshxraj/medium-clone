@@ -1,4 +1,5 @@
 import User from "../Schema/User.js";
+import Blog from "../Schema/Blog.js";
 
 export const searchUser = (req, res) => {
   let { query } = req.body;
@@ -26,6 +27,47 @@ export const getProfileOfUser = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+      return res.status(500).json({ error: err.message });
+    });
+};
+
+export const writtenBlogsOfUser = (req, res) => {
+  const user_id = req.user;
+
+  const { page, draft, query, deletedDocCount } = req.body;
+
+  let maxLimit = 4;
+  let skipDocs = (page - 1) * maxLimit;
+
+  if (deletedDocCount) {
+    skipDocs -= deletedDocCount;
+  }
+
+  Blog.find({ author: user_id, draft, title: new RegExp(query, "i") })
+    .skip(skipDocs)
+    .limit(maxLimit)
+    .sort({ publishedAt: -1 })
+    .select("title banner publishedAt blog_id activity des draft -_id")
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+};
+
+export const writtenBlogsOfUserCount = (req, res) => {
+  let user_id = req.user;
+  console.log(user_id);
+
+  let { draft, query } = req.body;
+
+  Blog.countDocuments({ author: user_id, draft, title: new RegExp(query, "i") })
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((err) => {
+      console.log(err.message);
       return res.status(500).json({ error: err.message });
     });
 };

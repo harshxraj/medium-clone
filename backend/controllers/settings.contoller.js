@@ -105,9 +105,8 @@ export const updateProfile = (req, res) => {
         let hostname = new URL(social_links[socialLinksArr[i]]).hostname;
 
         if (
-          !hostname.includes(
-            `${socialLinksArr[i].com}` && socialLinksArr[i] != "website"
-          )
+          !hostname.includes(`${socialLinksArr[i]}.com`) &&
+          socialLinksArr[i] != "website"
         ) {
           return res.status(403).json({
             error: `${socialLinksArr[i]} link is invalid, You must enter a correct link`,
@@ -141,55 +140,3 @@ export const updateProfile = (req, res) => {
       return res.status(500).json({ error: err.message });
     });
 };
-// export const updateProfile = (req, res) => {
-//   let bioLimit = 150;
-//   const { username, bio, social_links } = req.body;
-
-//   if (username.length < 3) {
-//     return res
-//       .status(403)
-//       .json({ error: "Username should be at least 3 letters long" });
-//   }
-
-//   if (bio.length > bioLimit) {
-//     return res
-//       .status(403)
-//       .json({ error: `Bio should not exceed ${bioLimit} characters` });
-//   }
-
-//   try {
-//     for (let link in social_links) {
-//       if (social_links[link]) {
-//         let hostname = new URL(social_links[link]).hostname;
-
-//         if (!hostname.includes(link + ".com") && link !== "website") {
-//           return res.status(403).json({
-//             error: `${link} link is invalid. Please enter a correct link.`,
-//           });
-//         }
-//       }
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({
-//       error: "You must provide full social links with http(s) included",
-//     });
-//   }
-
-//   let updateObj = {
-//     "personal_info.username": username,
-//     "personal_info.bio": bio,
-//     social_links,
-//   };
-
-//   User.findOneAndUpdate({ _id: req.user }, updateObj, { runValidators: true })
-//     .then(() => {
-//       return res.status(200).json({ message: "Profile updated successfully" });
-//     })
-//     .catch((err) => {
-//       if (err.code === 11000) {
-//         return res.status(409).json({ error: "Username is already taken" });
-//       }
-//       return res.status(500).json({ error: err.message });
-//     });
-// };
