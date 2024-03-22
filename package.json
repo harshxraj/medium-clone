@@ -1,13 +1,14 @@
 {
-  "name": "server",
+  "name": "medium-clone",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
-  "type": "module",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "set NODE_ENV=production&& node backend/index.js",
+    "dev": "set NODE_ENV=development&& nodemon backend/index.js",
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
