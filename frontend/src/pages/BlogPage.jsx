@@ -22,9 +22,9 @@ const BlogPage = () => {
   const { id: blog_id } = useParams();
   const selectedBlog = useSelector((store) => store.selectedBlog);
   const similarBlog = useSelector((store) => store.similarBlog.blogs);
-  console.log(selectedBlog);
+  // console.log(selectedBlog);
 
-  console.log("similar", similarBlog);
+  // console.log("similar", similarBlog);
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
@@ -46,10 +46,8 @@ const BlogPage = () => {
       .then(async ({ data: { blog } }) => {
         const fetchedTags = blog.tags; // Storing the tags in a separate variable
         // Fetcing comments;
-        console.log("BEFORE -> ", blog);
 
         blog.comments = await fetchComments({ dispatch, blog_id: blog._id });
-        console.log("AFTER -> ", blog);
 
         // Fetching similar blogs
         axios
@@ -59,10 +57,10 @@ const BlogPage = () => {
             eliminate_blog: blog_id,
           })
           .then(({ data }) => {
-            console.log(data.blogs);
+            // console.log(data.blogs);
             dispatch(setSimilarBlog(data.blogs));
           });
-        console.log("BLOG", blog);
+        // console.log("BLOG", blog);
         dispatch(setSelectedBlog(blog));
         setLoading(false);
       })

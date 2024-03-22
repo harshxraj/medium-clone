@@ -6,7 +6,9 @@ export const initialState = {
   des: "",
   content: [],
   tags: [],
-  comments: {},
+  comments: {
+    results: [],
+  },
   author: { personal_info: {} },
   banner: "",
   publishedAt: "",
@@ -69,12 +71,31 @@ const selectedBlogSlice = createSlice({
     setComments: (state, { payload }) => {
       state.comments = { ...state.comments, results: payload };
     },
+    updateComments: (state, { payload }) => {
+      state.comments = payload;
+    },
     setActivity: (state, { payload }) => {
       state.activity = {
         ...state.activity,
         total_comments: state.activity.total_comments + 1,
         total_parent_comments: state.activity.total_parent_comments + payload,
       };
+    },
+    setIsReplyLoaded: (state, action) => {
+      const { index, isLoaded } = action.payload;
+      console.log("GETTING", index, isLoaded, state);
+      state.comments.results[index].isReplyLoaded = isLoaded;
+      console.log("Ager", state);
+    },
+    makeReplyLoadedFalse: (state, { payload }) => {
+      console.log(state.comments.results[payload].isReplyLoaded);
+      state.comments.results[payload].isReplyLoaded = false;
+      console.log(state.comments.results[payload].isReplyLoaded);
+    },
+
+    setCommentsResults: (state, { payload }) => {
+      state.comments.results = payload;
+      console.log("AFTER", state);
     },
   },
 });
@@ -88,6 +109,10 @@ export const {
   setTotalParentCommentsLoaded,
   toggleCommentWrapper,
   setComments,
+  updateComments,
   setActivity,
+  setIsReplyLoaded,
+  setCommentsResults,
+  makeReplyLoadedFalse,
 } = selectedBlogSlice.actions;
 export default selectedBlogSlice.reducer;

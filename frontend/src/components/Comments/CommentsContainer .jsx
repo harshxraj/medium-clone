@@ -1,8 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  setComments,
   setTotalParentCommentsLoaded,
   toggleCommentWrapper,
+  updateComments,
 } from "../../redux/selectedBlogSlice";
 import CommentField from "./CommentField";
 import NoDataMessage from "../../components/ui/NoData";
@@ -30,6 +32,7 @@ export const fetchComments = async ({
 
       //   setParentCommentCountFun((prev) => prev + data.length);
       dispatch(setTotalParentCommentsLoaded(data.length));
+      console.log("AFTER DIS", data);
 
       if (comment_array == null) {
         res = { results: data };
@@ -51,14 +54,29 @@ const CommentsContainer = () => {
     blog_id,
     activity,
     comments: { results: commentArr },
-    activity: { total_likes, total_comments },
+    activity: { total_likes, total_comment, total_parent_comments },
     author: {
       personal_info: { username: author_username },
     },
+    totalParentCommentsLoaded,
   } = selectedBlog;
   console.log("Commetnns", commentArr);
 
   const dispatch = useDispatch();
+
+  const loadMoreComments = async () => {
+    let newCommentsArr = await fetchComments({
+      skip: totalParentCommentsLoaded,
+      blog_id: _id,
+      dispatch,
+      comment_array: commentArr,
+    });
+
+    // This newCommentArr will contain all the comments for that array, so we wont spread the old comments, insted we dispatch this newComments array as a payload, and set it to comments
+    // so if the limit is 5, and total comemnt is 12, after clicking first time, we will get 10 comments, and we get load more button, and then after 2 more
+
+    dispatch(updateComments(newCommentsArr));
+  };
   return (
     <div
       className={
@@ -98,6 +116,17 @@ const CommentsContainer = () => {
           })
         ) : (
           <NoDataMessage message={"No Comments"} />
+        )}
+
+        {total_parent_comments > totalParentCommentsLoaded ? (
+          <button
+            onClick={loadMoreComments}
+            className="text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2"
+          >
+            Load More
+          </button>
+        ) : (
+          ""
         )}
       </div>
     </div>

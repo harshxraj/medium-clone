@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import logo from "../imgs/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import UsernavigationPanel from "./user-navigation.component";
 import { useSelector } from "react-redux";
+import { ThemeContext } from "../App";
+import darkLogo from "../imgs/logo-dark.png";
+import lightLogo from "../imgs/logo-light.png";
 
 const Navbar = () => {
   const [seachBoxVisible, setSearchBoxVisible] = useState(false);
@@ -11,6 +14,8 @@ const Navbar = () => {
 
   const user = useSelector((store) => store.auth.user);
   const access_token = useSelector((store) => store.auth.access_token);
+
+  let { theme, setTheme } = useContext(ThemeContext);
 
   const handleUserNavPanel = () => {
     setUserNavPanel((curr) => !curr);
@@ -29,10 +34,20 @@ const Navbar = () => {
     }
   };
 
+  const changeTheme = () => {
+    let newTheme = theme == "light" ? "dark" : "light";
+
+    setTheme(newTheme);
+
+    document.body.setAttribute("data-theme", newTheme);
+
+    localStorage.setItem("medium-theme", newTheme);
+  };
+
   return (
-    <nav className="navbar">
+    <nav className="navbar z-50">
       <Link to="/" className="flex-none w-10">
-        <img src={logo} alt="logo" />
+        <img src={theme == "light" ? darkLogo : lightLogo} alt="logo" />
       </Link>
 
       <div
@@ -61,6 +76,17 @@ const Navbar = () => {
           <i className="fi fi-rr-file-edit"></i>
           <p>Write</p>
         </Link>
+
+        <button
+          onClick={changeTheme}
+          className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10"
+        >
+          <i
+            className={`fi fi-rr-${
+              theme == "light" ? "moon-stars" : "sun"
+            } text-2xl block mt-1`}
+          ></i>
+        </button>
 
         {access_token ? (
           <>

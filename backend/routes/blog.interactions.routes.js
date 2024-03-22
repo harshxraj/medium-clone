@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addComment,
+  deleteBlog,
   getComments,
   getReplies,
   isLikedByUser,
@@ -17,6 +18,9 @@ blogInteractionRouter.post("/comment", Auth, addComment);
 blogInteractionRouter.post("/comment/get", getComments);
 
 blogInteractionRouter.post("/reply", getReplies);
+
+blogInteractionRouter.post("/delete", Auth, deleteBlog);
+
 export default blogInteractionRouter;
 
 // Like the blog `${import.meta.env.VITE_BASE_URL}/blog/like`

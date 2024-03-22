@@ -3,7 +3,7 @@ import React from "react";
 const Img = ({ url, caption }) => {
   return (
     <div>
-      <img src={url} alt="" />
+      <img src={url} alt="" className="rounded-md" />
       {caption && (
         <p className="w-full text-center my-3 md:mb-12 text-base text-dark-grey">
           {caption}

@@ -3,8 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   blog_id: "",
   title: "",
-  banner:
-    "https://res.cloudinary.com/dw7mgtpfr/image/upload/v1707655360/xl5ldutemwxejihor8zc.jpg",
+  banner: "",
   content: [],
   tags: [],
   des: "",

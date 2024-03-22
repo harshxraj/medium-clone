@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Gelasio&family=Inter:wght@400;500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600&display=swap");
 @import "@flaticon/flaticon-uicons/css/all/all";
+@import "./editor-theme.css";
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +17,7 @@
   }
 
   body {
-    @apply font-inter font-normal text-black;
+    @apply font-inter font-normal text-black bg-white;
   }
 
   i {

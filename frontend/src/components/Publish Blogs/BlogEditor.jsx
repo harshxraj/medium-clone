@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import logo from "../../imgs/logo.png";
+import axios from "axios";
 import AnimationWrapper from "../../common/Page-animation";
 import defaultBanner from "../../imgs/blog banner.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,11 @@ import EditorJS from "@editorjs/editorjs";
 import { tools } from "../../utils/tools";
 import { toast, Toaster } from "react-hot-toast";
 import { editorContext } from "../../pages/Editor";
-import axios from "axios";
+import lightLogo from "../../imgs/logo-light.png";
+import darkLogo from "../../imgs/logo-dark.png";
+import lightBanner from "../../imgs/blog banner light.png";
+import darkBanner from "../../imgs/blog banner dark.png";
+import { ThemeContext } from "../../App";
 
 const BlogEditor = () => {
   const dispatch = useDispatch();
@@ -26,6 +30,8 @@ const BlogEditor = () => {
   const { textEditor, setTextEditor } = useContext(editorContext);
   const access_token = useSelector((store) => store.auth.access_token);
   const navigate = useNavigate();
+
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     if (!textEditor.isReady) {
@@ -182,7 +188,7 @@ const BlogEditor = () => {
       <Toaster />
       <nav className="navbar">
         <Link to="/" className="flex-none w-10">
-          <img src={logo} alt="" />
+          <img src={theme == "light" ? darkLogo : lightLogo} alt="" />
         </Link>
         <p className="max-md:hidden text-black line-clamp-1 w-full">
           {blogEditor.title == "" ? "New Blog" : blogEditor.title}
@@ -205,7 +211,11 @@ const BlogEditor = () => {
               <label htmlFor="uploadBanner">
                 <img
                   src={
-                    blogEditor.banner == "" ? defaultBanner : blogEditor.banner
+                    blogEditor.banner == ""
+                      ? theme == "light"
+                        ? lightBanner
+                        : darkBanner
+                      : blogEditor.banner
                   }
                   alt=""
                 />
@@ -220,7 +230,7 @@ const BlogEditor = () => {
 
             <textarea
               defaultValue={title}
-              className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight"
+              className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight bg-white"
               placeholder="Blog Title"
               onKeyDown={handleTitleKeyDown}
               onChange={handleTilteChange}
