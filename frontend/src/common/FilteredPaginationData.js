@@ -16,7 +16,7 @@ export const filterPaginationData = async ({
   } else {
     // Creating the first time
     await axios
-      .post(import.meta.env.VITE_BASE_URL + countRoute, data_to_send)
+      .post(countRoute, data_to_send)
       .then(({ data: { totalDocs } }) => {
         obj = { results: data, page: 1, totalDocs };
       })
