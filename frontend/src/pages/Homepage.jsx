@@ -27,7 +27,7 @@ const Homepage = () => {
 
   const fetchLatestBlogs = ({ page = 1 }) => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog/latest-blogs`, { page })
+      .post(`/blog/latest-blogs`, { page })
       .then(async ({ data }) => {
         let formatedData = await filterPaginationData({
           state: blogs,
@@ -69,7 +69,7 @@ const Homepage = () => {
 
   const fetchBlogsByCategory = ({ page = 1 }) => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog/search-blogs`, {
+      .post(`/blog/search-blogs`, {
         tag: pageState,
         page,
       })
