@@ -93,7 +93,7 @@ const CommentField = ({
     //   });
     axios
       .post(
-        `${import.meta.env.VITE_BASE_URL}/blog/comment`,
+        `/blog/comment`,
         { _id, blog_author, comment, replying_to: replyingTo },
         {
           headers: {

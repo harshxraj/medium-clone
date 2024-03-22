@@ -90,7 +90,7 @@ const PublishForm = () => {
 
     axios
       .post(
-        `${import.meta.env.VITE_BASE_URL}/blog/create`,
+        `/blog/create`,
         { ...blogObj, id: blog_id },
         {
           headers: {

@@ -80,7 +80,7 @@ const EditProfilePage = () => {
 
     axios
       .post(
-        `${import.meta.env.VITE_BASE_URL}/settings/update-profile`,
+        `/settings/update-profile`,
         {
           username,
           bio,
@@ -156,7 +156,7 @@ const EditProfilePage = () => {
     let x = toast.loading("Uploading Image!");
     axios
       .post(
-        `${import.meta.env.VITE_BASE_URL}/settings/update-profile-img`,
+        `/settings/update-profile-img`,
         {
           img: avatar,
         },
@@ -183,7 +183,7 @@ const EditProfilePage = () => {
   useEffect(() => {
     if (access_token) {
       axios
-        .post(`${import.meta.env.VITE_BASE_URL}/user/profile`, {
+        .post(`/user/profile`, {
           username: user.username,
         })
         .then(({ data }) => {

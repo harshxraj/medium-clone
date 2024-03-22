@@ -35,15 +35,11 @@ const ChangePwdPage = () => {
     let loadingToast = toast.loading("Updating...");
 
     axios
-      .post(
-        `${import.meta.env.VITE_BASE_URL}/settings/change-password`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      )
+      .post(`/settings/change-password`, formData, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
       .then(() => {
         toast.dismiss(loadingToast);
         e.target.removeAttribute("disabled");

@@ -35,7 +35,7 @@ const Editor = () => {
       return;
     }
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog`, {
+      .post(`/blog`, {
         blog_id,
         draft: true,
         mode: "edit",

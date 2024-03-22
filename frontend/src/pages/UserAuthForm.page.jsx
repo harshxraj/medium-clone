@@ -23,7 +23,7 @@ const UserAuthForm = ({ type }) => {
   const signup = (fullname, email, password) => {
     // console.log(email, password, fullname);
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/auth/signup`, {
+      .post(`/auth/signup`, {
         fullname,
         email,
         password,
@@ -39,7 +39,7 @@ const UserAuthForm = ({ type }) => {
 
   const signin = (email, password) => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/auth/signin`, {
+      .post(`/auth/signin`, {
         email,
         password,
       })
@@ -57,7 +57,7 @@ const UserAuthForm = ({ type }) => {
     authWithGoogle()
       .then((user) => {
         axios
-          .post(`${import.meta.env.VITE_BASE_URL}/auth/google`, {
+          .post(`/auth/google`, {
             access_token: user.accessToken,
           })
           .then(({ data }) => {

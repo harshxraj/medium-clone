@@ -51,7 +51,7 @@ const ProfilePage = () => {
 
   const fetchUserProfile = () => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/user/profile`, {
+      .post(`/user/profile`, {
         username: profileId,
       })
       .then(({ data: user }) => {
@@ -72,7 +72,7 @@ const ProfilePage = () => {
     user_id = user_id == undefined ? blogs.user_id : user_id;
 
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog/search-blogs`, {
+      .post(`/blog/search-blogs`, {
         author: user_id,
         page,
       })

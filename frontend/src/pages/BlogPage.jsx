@@ -42,7 +42,7 @@ const BlogPage = () => {
 
   const fetchBlog = () => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog`, { blog_id })
+      .post(`/blog`, { blog_id })
       .then(async ({ data: { blog } }) => {
         const fetchedTags = blog.tags; // Storing the tags in a separate variable
         // Fetcing comments;
@@ -51,7 +51,7 @@ const BlogPage = () => {
 
         // Fetching similar blogs
         axios
-          .post(`${import.meta.env.VITE_BASE_URL}/blog/search-blogs`, {
+          .post(`/blog/search-blogs`, {
             tag: fetchedTags[0], // Accessing the first tag
             limit: 6,
             eliminate_blog: blog_id,

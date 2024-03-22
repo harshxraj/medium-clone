@@ -18,7 +18,7 @@ const SearchPage = () => {
 
   const searchBlogs = ({ page = 1, create_new_arr = false }) => {
     axios
-      .post(`${import.meta.env.VITE_BASE_URL}/blog/search-blogs`, {
+      .post(`/blog/search-blogs`, {
         query,
         page,
       })
@@ -52,12 +52,10 @@ const SearchPage = () => {
   };
 
   const fetchUsers = () => {
-    axios
-      .post(`${import.meta.env.VITE_BASE_URL}/user/search`, { query })
-      .then(({ data: { users } }) => {
-        console.log(users);
-        setUsers(users);
-      });
+    axios.post(`/user/search`, { query }).then(({ data: { users } }) => {
+      console.log(users);
+      setUsers(users);
+    });
   };
 
   const UserCardWrapper = () => {

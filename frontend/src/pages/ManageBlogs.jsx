@@ -45,7 +45,7 @@ const ManageBlogs = () => {
       // Creating the first time
       await axios
         .post(
-          import.meta.env.VITE_BASE_URL + countRoute,
+          countRoute,
 
           data_to_send,
           {
@@ -65,7 +65,7 @@ const ManageBlogs = () => {
   const getBlogs = ({ page, draft, deletedDocCount = 0 }) => {
     axios
       .post(
-        `${import.meta.env.VITE_BASE_URL}/user/written-blogs`,
+        `/user/written-blogs`,
         {
           page,
           draft,

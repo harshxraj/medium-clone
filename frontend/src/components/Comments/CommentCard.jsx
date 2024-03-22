@@ -39,39 +39,37 @@ const CommentCard = ({ index, leftVal, commentData }) => {
     if (children.length) {
       hideReplies();
 
-      axios
-        .post(`${import.meta.env.VITE_BASE_URL}/blog/reply`, { _id, skip })
-        .then(({ data: { replies } }) => {
-          // commentData.isReplyLoaded = true;
-          dispatch(setIsReplyLoaded({ index, isLoaded: true }));
-          console.log("respiles", replies);
+      axios.post(`/blog/reply`, { _id, skip }).then(({ data: { replies } }) => {
+        // commentData.isReplyLoaded = true;
+        dispatch(setIsReplyLoaded({ index, isLoaded: true }));
+        console.log("respiles", replies);
 
-          // for (let i = 0; i < replies.length; i++) {
-          //   replies[i].childrenLevel = commentData.childrenLevel + 1;
+        // for (let i = 0; i < replies.length; i++) {
+        //   replies[i].childrenLevel = commentData.childrenLevel + 1;
 
-          //   commentArr.splice(index + 1 + i + skip, 0, replies[i]);
-          // }
+        //   commentArr.splice(index + 1 + i + skip, 0, replies[i]);
+        // }
 
-          // const updatedComments = [...selectedBlog.comments.results];
-          const updatedComments = [...commentArr];
+        // const updatedComments = [...selectedBlog.comments.results];
+        const updatedComments = [...commentArr];
 
-          // for (let i = 0; i < replies.length; i++) {
-          //   replies[i].childrenLevel = commentData.childrenLevel + 1;
-          //   updatedComments.splice(skip + i, 0, replies[i]);
-          // }
-          console.log(commentData.childrenLevel);
-          for (let i = 0; i < replies.length; i++) {
-            replies[i].childrenLevel = commentData.childrenLevel + 1;
+        // for (let i = 0; i < replies.length; i++) {
+        //   replies[i].childrenLevel = commentData.childrenLevel + 1;
+        //   updatedComments.splice(skip + i, 0, replies[i]);
+        // }
+        console.log(commentData.childrenLevel);
+        for (let i = 0; i < replies.length; i++) {
+          replies[i].childrenLevel = commentData.childrenLevel + 1;
 
-            updatedComments.splice(index + 1 + i + skip, 0, replies[i]);
-          }
+          updatedComments.splice(index + 1 + i + skip, 0, replies[i]);
+        }
 
-          // dispatch(setComments({ results: updatedComments }));
+        // dispatch(setComments({ results: updatedComments }));
 
-          // dispatch(setComments(updatedComments));
-          console.log("getting", updatedComments);
-          dispatch(setCommentsResults(updatedComments));
-        });
+        // dispatch(setComments(updatedComments));
+        console.log("getting", updatedComments);
+        dispatch(setCommentsResults(updatedComments));
+      });
     }
   };
 
