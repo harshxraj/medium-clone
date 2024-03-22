@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import InputBox from "../components/input.component";
+import InputBox from "../components/Input";
 import googleIcon from "../imgs/google.png";
 import { Toaster, toast } from "react-hot-toast";
 import { Link, useNavigate, Navigate } from "react-router-dom";

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Toaster, toast } from "react-hot-toast";
 import AnimationWrapper from "../common/Page-animation";
 import Loader from "../components/ui/Loader";
-import InputBox from "../components/input.component";
+import InputBox from "../components/Input";
 import { Navigate } from "react-router-dom";
 import { updateProfileImg, updateUsername } from "../redux/authSlice";
 
