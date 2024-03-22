@@ -46,7 +46,7 @@ const Homepage = () => {
 
   const fetchTrendingBlogs = () => {
     axios
-      .get(`${import.meta.env.VITE_BASE_URL}/blog/trending-blogs`)
+      .get(`/blog/trending-blogs`)
       .then(({ data }) => {
         setTrendingBlogs(data.blogs);
       })
