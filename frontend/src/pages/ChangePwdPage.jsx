@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
 import AnimationWrapper from "../common/Page-animation";
-import InputBox from "../components/input.component";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import InputBox from "../components/Input";
 
 const ChangePwdPage = () => {
   const access_token = useSelector((store) => store.auth.access_token);
