@@ -11,12 +11,12 @@ import blogRouter from "./routes/blog.routes.js";
 import userRouter from "./routes/user.routes.js";
 import blogInteractionRouter from "./routes/blog.interactions.routes.js";
 import settingRouter from "./routes/settings.routes.js";
-import job from "./cron.js";
+// import job from "./cron.js";
 
 const server = express();
 const PORT = 3000;
 const __dirname = path.resolve();
-job.start();
+// job.start();
 
 server.use(bodyParser.json({ limit: "50mb" }));
 server.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));

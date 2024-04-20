@@ -30,6 +30,7 @@ const Navbar = () => {
   const handleSearch = (e) => {
     let query = e.target.value;
     if (e.keyCode == 13 && query.length) {
+      setSearchBoxVisible(false);
       navigate(`/search/${query}`);
     }
   };
