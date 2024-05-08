@@ -44,7 +44,7 @@ const job = new cron.CronJob({
       console.error("Error while sending request", e);
     });
   },
-  start: false,
+  start: true,
   timeZone: 'Asia/Kolkata'
 });
 
