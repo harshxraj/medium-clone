@@ -88,7 +88,7 @@ export const addComment = (req, res) => {
   }
 
   new Comment(commentObj).save().then(async (commentFile) => {
-    let { comment, commentedAt, children } = commentFile;
+    let { comment, commentedAt, children, parent, isReply } = commentFile;
 
     // If the comment is reply to some comment, then we won't increase the total_parent_comment count, otherwise we increase by 1
     Blog.findOneAndUpdate(
@@ -135,6 +135,8 @@ export const addComment = (req, res) => {
       _id: commentFile._id,
       user_id,
       children,
+      parent,
+      isReply,
     });
   });
 };

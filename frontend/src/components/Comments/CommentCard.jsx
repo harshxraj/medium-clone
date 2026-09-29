@@ -10,7 +10,7 @@ import {
 } from "../../redux/selectedBlogSlice";
 import axios from "axios";
 
-const CommentCard = ({ leftVal, commentData }) => {
+const CommentCard = ({ isNested = false, commentData }) => {
   const access_token = useSelector((store) => store.auth.access_token);
   const currentUsername = useSelector((store) => store.auth.user?.username);
   const dispatch = useDispatch();
@@ -93,70 +93,95 @@ const CommentCard = ({ leftVal, commentData }) => {
       .finally(() => setDeleting(false));
   };
 
+  const replyLabel = `${children.length} ${
+    children.length === 1 ? "reply" : "replies"
+  }`;
+
   return (
-    <div className="w-full" style={{ paddingLeft: `${leftVal * 10}px` }}>
-      <div className="my-5 p-6 rounded-md border border-grey">
-        <div className="flex gap-3 items-center mb-8">
-          {profile_img && (
-            <img src={profile_img} className="w-6 h-6 rounded-full" />
-          )}
-
-          <p className="line-clamp-1 font-medium capitalize">{fullname}</p>
-          <p className="min-w-fit text-dark-grey">
-            {getFullDayWithTime(commentedAt)}
-          </p>
-        </div>
-
-        <p className="font-gelasio text-xl ml-3">{comment}</p>
-
-        <div className="flex gap-5 items-center mt-5">
-          {commentData.isReplyLoaded ? (
-            <button
-              onClick={hideReplies}
-              className="text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2"
-            >
-              <i className="fi fi-rs-comment-dots"></i>
-              Hide Reply
-            </button>
-          ) : (
-            <button
-              onClick={loadReplies}
-              className="text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2"
-            >
-              <i className="fi fi-rs-comment-dots"></i>
-              {children.length} Replies
-            </button>
-          )}
-          <i
-            className={`fi fi-rr-undo -mr-2 ${
-              isReplying ? "-rotate-90 transition duration-500" : ""
-            }`}
-          ></i>
-          <button onClick={handleReply} className="underline">
-            Reply
-          </button>
-          {currentUsername === username ? (
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="text-red underline disabled:opacity-50"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
-          ) : null}
-        </div>
-
-        {isReplying && (
-          <div className="mt-8">
-            <CommentField
-              action="reply"
-              replyingTo={_id}
-              setReplying={setReplying}
+    <article className={isNested ? "py-4" : "py-5"}>
+      <div className="flex items-start gap-3">
+          {profile_img ? (
+            <img
+              src={profile_img}
+              alt={`${fullname}'s avatar`}
+              className="h-8 w-8 flex-none rounded-full bg-grey object-cover"
             />
+          ) : (
+            <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-grey text-sm font-medium">
+              {fullname?.charAt(0).toUpperCase()}
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <p className="truncate text-sm font-medium capitalize">
+                {fullname}
+              </p>
+              <time
+                dateTime={commentedAt}
+                className="text-xs text-dark-grey"
+              >
+                {getFullDayWithTime(commentedAt)}
+              </time>
+            </div>
+
+            <p className="mt-2.5 whitespace-pre-wrap break-words font-gelasio text-[17px] leading-7">
+              {comment}
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              {children.length ? (
+                commentData.isReplyLoaded ? (
+                  <button
+                    type="button"
+                    onClick={hideReplies}
+                    aria-expanded="true"
+                    className="text-sm font-medium text-dark-grey hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  >
+                    Hide replies
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={loadReplies}
+                    aria-expanded="false"
+                    className="text-sm font-medium text-dark-grey hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  >
+                    {replyLabel}
+                  </button>
+                )
+              ) : null}
+
+              <button
+                type="button"
+                onClick={handleReply}
+                className="text-sm font-medium text-dark-grey hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+              >
+                {isReplying ? "Cancel reply" : "Reply"}
+              </button>
+
+              {currentUsername === username ? (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="text-sm text-dark-grey hover:text-red disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red"
+                >
+                  {isDeleting ? "Deleting…" : "Delete"}
+                </button>
+              ) : null}
+            </div>
+
+            {isReplying ? (
+              <CommentField
+                action="reply"
+                replyingTo={_id}
+                setReplying={setReplying}
+              />
+            ) : null}
           </div>
-        )}
       </div>
-    </div>
+    </article>
   );
 };
 
