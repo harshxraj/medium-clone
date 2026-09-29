@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import CommentField from "./CommentField";
 import {
+  deleteCommentFromState,
   hideRepliesForComment,
   showRepliesForComment,
 } from "../../redux/selectedBlogSlice";
@@ -11,6 +12,7 @@ import axios from "axios";
 
 const CommentCard = ({ leftVal, commentData }) => {
   const access_token = useSelector((store) => store.auth.access_token);
+  const currentUsername = useSelector((store) => store.auth.user?.username);
   const dispatch = useDispatch();
 
   const {
@@ -24,6 +26,7 @@ const CommentCard = ({ leftVal, commentData }) => {
   } = commentData;
 
   const [isReplying, setReplying] = useState(false);
+  const [isDeleting, setDeleting] = useState(false);
 
   const loadReplies = () => {
     if (children.length) {
@@ -48,6 +51,46 @@ const CommentCard = ({ leftVal, commentData }) => {
     }
 
     setReplying((prev) => !prev);
+  };
+
+  const handleDelete = () => {
+    const deleteMessage = children.length
+      ? "Delete this comment and all of its replies?"
+      : "Delete this comment?";
+
+    if (!window.confirm(deleteMessage)) return;
+
+    setDeleting(true);
+    axios
+      .delete(`${import.meta.env.VITE_BASE_URL}/blog/comment/${_id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+      .then(
+        ({
+          data: {
+            deleted_comment_ids,
+            deleted_count,
+            deleted_parent_count,
+            parent_id,
+          },
+        }) => {
+          dispatch(
+            deleteCommentFromState({
+              deletedCommentIds: deleted_comment_ids,
+              deletedCount: deleted_count,
+              deletedParentCount: deleted_parent_count,
+              parentId: parent_id,
+            })
+          );
+          toast.success("Comment deleted.");
+        }
+      )
+      .catch(({ response }) => {
+        toast.error(response?.data?.error || "Unable to delete comment.");
+      })
+      .finally(() => setDeleting(false));
   };
 
   return (
@@ -92,6 +135,15 @@ const CommentCard = ({ leftVal, commentData }) => {
           <button onClick={handleReply} className="underline">
             Reply
           </button>
+          {currentUsername === username ? (
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="text-red underline disabled:opacity-50"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+          ) : null}
         </div>
 
         {isReplying && (

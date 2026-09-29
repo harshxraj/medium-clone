@@ -128,6 +128,46 @@ const selectedBlogSlice = createSlice({
         comments.splice(parentIndex + 1, 1);
       }
     },
+    deleteCommentFromState: (state, { payload }) => {
+      const {
+        deletedCommentIds,
+        deletedCount,
+        deletedParentCount,
+        parentId,
+      } = payload;
+      const deletedIds = new Set(
+        deletedCommentIds.map((commentId) => commentId.toString())
+      );
+
+      state.comments.results = state.comments.results.filter(
+        (comment) => !deletedIds.has(comment._id.toString())
+      );
+
+      if (parentId) {
+        const parentComment = state.comments.results.find(
+          (comment) => comment._id === parentId
+        );
+
+        if (parentComment) {
+          parentComment.children = (parentComment.children || []).filter(
+            (childId) => !deletedIds.has(childId.toString())
+          );
+        }
+      }
+
+      state.activity.total_comments = Math.max(
+        0,
+        state.activity.total_comments - deletedCount
+      );
+      state.activity.total_parent_comments = Math.max(
+        0,
+        state.activity.total_parent_comments - deletedParentCount
+      );
+      state.totalParentCommentsLoaded = Math.max(
+        0,
+        state.totalParentCommentsLoaded - deletedParentCount
+      );
+    },
   },
 });
 
@@ -144,5 +184,6 @@ export const {
   setActivity,
   showRepliesForComment,
   hideRepliesForComment,
+  deleteCommentFromState,
 } = selectedBlogSlice.actions;
 export default selectedBlogSlice.reducer;
