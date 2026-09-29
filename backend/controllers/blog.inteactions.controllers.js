@@ -83,6 +83,7 @@ export const addComment = (req, res) => {
 
   if (replying_to) {
     commentObj.parent = replying_to;
+    commentObj.isReply = true;
   }
 
   new Comment(commentObj).save().then(async (commentFile) => {
@@ -142,7 +143,9 @@ export const getComments = (req, res) => {
 
   let maxLimit = 5;
 
-  Comment.find({ blog_id, isReply: false })
+  // Use the parent relationship as the source of truth so replies created
+  // before isReply was set correctly do not appear as top-level comments.
+  Comment.find({ blog_id, parent: { $exists: false } })
     .populate(
       "commented_by",
       "personal_info.username personal_info.fullname personal_info.profile_img"
@@ -162,16 +165,12 @@ export const getComments = (req, res) => {
 };
 
 export const getReplies = (req, res) => {
-  let { _id, skip } = req.body;
-
-  let maxLimit = 5;
+  let { _id } = req.body;
 
   Comment.findOne({ _id })
     .populate({
       path: "children",
-      option: {
-        limit: maxLimit,
-        skip: skip,
+      options: {
         sort: { commentedAt: -1 },
       },
       populate: {

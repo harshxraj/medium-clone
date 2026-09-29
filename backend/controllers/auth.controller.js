@@ -2,8 +2,8 @@ import bcrypt from "bcrypt";
 import User from "../Schema/User.js";
 import { formatDataToSend, generateUsername } from "../utils/auth.utils.js";
 import admin from "firebase-admin";
-import serviceAccountKey from "../firebase-key.json" assert { type: "json" };
 import { getAuth } from "firebase-admin/auth";
+import { readFileSync } from "node:fs";
 
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -95,15 +95,34 @@ export const signin = async (req, res) => {
   }
 };
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccountKey),
-});
+let firebaseAuth = null;
+
+try {
+  const serviceAccountKey = JSON.parse(
+    readFileSync(new URL("../firebase-key.json", import.meta.url), "utf8")
+  );
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccountKey),
+  });
+  firebaseAuth = getAuth();
+} catch (error) {
+  console.warn(
+    "Firebase Admin is disabled. Google authentication will be unavailable."
+  );
+}
 
 export const googleAuth = async (req, res) => {
+  if (!firebaseAuth) {
+    return res.status(503).json({
+      error: "Google authentication is not configured on this server.",
+    });
+  }
+
   try {
     const { access_token } = req.body;
 
-    const decodedUser = await getAuth().verifyIdToken(access_token);
+    const decodedUser = await firebaseAuth.verifyIdToken(access_token);
     let { email, name, picture } = decodedUser;
     picture = picture.replace("s96-c", "s384-c");
 

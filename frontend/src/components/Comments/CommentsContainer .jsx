@@ -103,11 +103,10 @@ const CommentsContainer = () => {
         <CommentField action={"comment"} />
 
         {commentArr && commentArr?.length ? (
-          commentArr.map((comment, i) => {
+          commentArr.map((comment) => {
             return (
-              <AnimationWrapper key={i}>
+              <AnimationWrapper key={comment._id}>
                 <CommentCard
-                  index={i}
                   leftVal={comment.childrenLevel * 4}
                   commentData={comment}
                 />

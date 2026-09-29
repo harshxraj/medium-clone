@@ -10,7 +10,6 @@ import {
 
 const CommentField = ({
   action,
-  index = undefined,
   replyingTo = undefined,
   setReplying,
 }) => {
@@ -108,27 +107,29 @@ const CommentField = ({
         let newCommentArr;
 
         if (replyingTo) {
-          // let indexToUpdate = commentArr.findIndex(
-          //   (comment) => comment._id === replyingTo
-          // );
-          // if (indexToUpdate === -1) {
-          //   // Handle the case where the parent comment is not found
-          //   console.error("Parent comment not found!");
-          //   return;
-          // }
+          const indexToUpdate = commentArr.findIndex(
+            (comment) => comment._id === replyingTo
+          );
+
+          if (indexToUpdate === -1) {
+            return toast.error(
+              "The comment being replied to is no longer loaded."
+            );
+          }
 
           newCommentArr = [...commentArr]; // Clone the commentArr
 
-          newCommentArr[index] = {
-            ...newCommentArr[index],
-            children: [...newCommentArr[index].children, data._id],
+          newCommentArr[indexToUpdate] = {
+            ...newCommentArr[indexToUpdate],
+            children: [...newCommentArr[indexToUpdate].children, data._id],
             isReplyLoaded: true,
           };
 
-          data.childrenLevel = newCommentArr[index].childrenLevel + 1;
-          data.parentIndex = index;
+          data.childrenLevel =
+            newCommentArr[indexToUpdate].childrenLevel + 1;
+          data.parentIndex = indexToUpdate;
 
-          newCommentArr.splice(index + 1, 0, data);
+          newCommentArr.splice(indexToUpdate + 1, 0, data);
 
           setReplying(false);
         } else {
