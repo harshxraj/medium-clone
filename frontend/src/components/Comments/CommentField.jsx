@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setActivity,
@@ -10,7 +10,6 @@ import {
 
 const CommentField = ({
   action,
-  index = undefined,
   replyingTo = undefined,
   setReplying,
 }) => {
@@ -27,6 +26,7 @@ const CommentField = ({
 
   //   console.log("SELE", selectedBlog);
   const [comment, setComment] = useState("");
+  const [isSubmitting, setSubmitting] = useState(false);
   const dispatch = useDispatch();
 
   const {
@@ -38,63 +38,20 @@ const CommentField = ({
     if (!access_token) {
       return toast.error("Login first to leave a comment!");
     }
-    if (!comment.length) {
+    if (!comment.trim().length) {
       return toast.error("Write something to leave a comment..");
     }
 
-    // axios
-    //   .post(
-    //     `${import.meta.env.VITE_BASE_URL}/blog/comment`,
-    //     { _id, blog_author, comment, replying_to: replyingTo },
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${access_token}`,
-    //       },
-    //     }
-    //   )
-    //   .then(({ data }) => {
-    //     setComment("");
-    //     data.commented_by = { personal_info: currentUser };
-
-    //     let newCommentArr;
-
-    //     if (replyingTo) {
-    //       newCommentArr = [...commentArr];
-    //       console.log(newCommentArr);
-    //       // commentArr[index].children.push(data._id);
-    //       newCommentArr[index].children.push(data._id);
-
-    //       data.childrenLevel = newCommentArr[index].childrenLevel + 1;
-    //       data.parentIndex = index;
-
-    //       newCommentArr[index].isReplyLoaded = true;
-
-    //       newCommentArr.splice(index + 1, 0, data);
-
-    //       // newCommentArr = commentArr;
-    //     } else {
-    //       // Saying this is the parent comment, first reply
-    //       data.childrenLevel = 0;
-
-    //       newCommentArr = [data, ...commentArr];
-    //     }
-
-    //     let parentCommentIncrementVal = replyingTo ? 0 : 1;
-
-    //     dispatch(setComments(newCommentArr));
-    //     dispatch(setActivity(parentCommentIncrementVal));
-
-    //     dispatch(setTotalParentCommentsLoaded(parentCommentIncrementVal));
-
-    //     console.log(data);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    setSubmitting(true);
     axios
       .post(
-        `/blog/comment`,
-        { _id, blog_author, comment, replying_to: replyingTo },
+        `${import.meta.env.VITE_BASE_URL}/blog/comment`,
+        {
+          _id,
+          blog_author,
+          comment: comment.trim(),
+          replying_to: replyingTo,
+        },
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -108,27 +65,29 @@ const CommentField = ({
         let newCommentArr;
 
         if (replyingTo) {
-          // let indexToUpdate = commentArr.findIndex(
-          //   (comment) => comment._id === replyingTo
-          // );
-          // if (indexToUpdate === -1) {
-          //   // Handle the case where the parent comment is not found
-          //   console.error("Parent comment not found!");
-          //   return;
-          // }
+          data.parent = replyingTo;
+          const indexToUpdate = commentArr.findIndex(
+            (comment) => comment._id === replyingTo
+          );
+
+          if (indexToUpdate === -1) {
+            return toast.error(
+              "The comment being replied to is no longer loaded."
+            );
+          }
 
           newCommentArr = [...commentArr]; // Clone the commentArr
 
-          newCommentArr[index] = {
-            ...newCommentArr[index],
-            children: [...newCommentArr[index].children, data._id],
+          newCommentArr[indexToUpdate] = {
+            ...newCommentArr[indexToUpdate],
+            children: [...newCommentArr[indexToUpdate].children, data._id],
             isReplyLoaded: true,
           };
 
-          data.childrenLevel = newCommentArr[index].childrenLevel + 1;
-          data.parentIndex = index;
+          data.childrenLevel =
+            newCommentArr[indexToUpdate].childrenLevel + 1;
 
-          newCommentArr.splice(index + 1, 0, data);
+          newCommentArr.splice(indexToUpdate + 1, 0, data);
 
           setReplying(false);
         } else {
@@ -144,26 +103,53 @@ const CommentField = ({
         dispatch(setActivity(parentCommentIncrementVal));
         dispatch(setTotalParentCommentsLoaded(parentCommentIncrementVal));
 
-        console.log(data);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch(({ response }) => {
+        toast.error(response?.data?.error || "Unable to post comment.");
+      })
+      .finally(() => setSubmitting(false));
   };
 
+  const isReply = action === "reply";
+
   return (
-    <>
-      <Toaster />
+    <div
+      className={`overflow-hidden rounded-xl border border-grey bg-grey/40 transition-colors focus-within:border-dark-grey/40 focus-within:bg-white ${
+        isReply ? "mt-4" : ""
+      }`}
+    >
       <textarea
+        autoFocus={isReply}
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Leave a comment..."
-        className="input-box pl-5 placeholder:text-dark-grey resize-none h-[150px] overflow-auto"
-      ></textarea>
-      <button onClick={handleComment} className="btn-dark mt-5 px-10">
-        {action}
-      </button>
-    </>
+        placeholder={isReply ? "Write a reply…" : "Add to the conversation…"}
+        rows={isReply ? 2 : 3}
+        className="block w-full resize-none bg-transparent px-4 py-4 text-base leading-6 placeholder:text-dark-grey/80 focus:outline-none"
+      />
+      <div className="flex items-center justify-end gap-2 border-t border-grey px-3 py-2">
+        {isReply ? (
+          <button
+            type="button"
+            onClick={() => setReplying(false)}
+            className="rounded-full px-3 py-2 text-sm text-dark-grey hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+          >
+            Cancel
+          </button>
+        ) : null}
+        <button
+          type="button"
+          onClick={handleComment}
+          disabled={isSubmitting || !comment.trim().length}
+          className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+        >
+          {isSubmitting
+            ? "Posting…"
+            : isReply
+            ? "Post reply"
+            : "Post comment"}
+        </button>
+      </div>
+    </div>
   );
 };
 

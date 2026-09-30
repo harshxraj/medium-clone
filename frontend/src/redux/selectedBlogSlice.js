@@ -81,21 +81,92 @@ const selectedBlogSlice = createSlice({
         total_parent_comments: state.activity.total_parent_comments + payload,
       };
     },
-    setIsReplyLoaded: (state, action) => {
-      const { index, isLoaded } = action.payload;
-      console.log("GETTING", index, isLoaded, state);
-      state.comments.results[index].isReplyLoaded = isLoaded;
-      console.log("Ager", state);
-    },
-    makeReplyLoadedFalse: (state, { payload }) => {
-      console.log(state.comments.results[payload].isReplyLoaded);
-      state.comments.results[payload].isReplyLoaded = false;
-      console.log(state.comments.results[payload].isReplyLoaded);
-    },
+    showRepliesForComment: (state, { payload }) => {
+      const { parentId, replies } = payload;
+      const comments = state.comments.results;
+      const parentIndex = comments.findIndex(
+        (comment) => comment._id === parentId
+      );
 
-    setCommentsResults: (state, { payload }) => {
-      state.comments.results = payload;
-      console.log("AFTER", state);
+      if (parentIndex === -1) return;
+
+      const parentLevel = comments[parentIndex].childrenLevel;
+
+      while (
+        comments[parentIndex + 1] &&
+        comments[parentIndex + 1].childrenLevel > parentLevel
+      ) {
+        comments.splice(parentIndex + 1, 1);
+      }
+
+      comments[parentIndex].isReplyLoaded = true;
+      comments.splice(
+        parentIndex + 1,
+        0,
+        ...replies.map((reply) => ({
+          ...reply,
+          childrenLevel: parentLevel + 1,
+        }))
+      );
+    },
+    hideRepliesForComment: (state, { payload }) => {
+      const { parentId } = payload;
+      const comments = state.comments.results;
+      const parentIndex = comments.findIndex(
+        (comment) => comment._id === parentId
+      );
+
+      if (parentIndex === -1) return;
+
+      const parentLevel = comments[parentIndex].childrenLevel;
+      comments[parentIndex].isReplyLoaded = false;
+
+      while (
+        comments[parentIndex + 1] &&
+        comments[parentIndex + 1].childrenLevel > parentLevel
+      ) {
+        comments.splice(parentIndex + 1, 1);
+      }
+    },
+    deleteCommentFromState: (state, { payload }) => {
+      const {
+        deletedCommentIds,
+        deletedCount,
+        deletedParentCount,
+        parentId,
+      } = payload;
+      const deletedIds = new Set(
+        deletedCommentIds.map((commentId) => commentId.toString())
+      );
+
+      state.comments.results = state.comments.results.filter(
+        (comment) => !deletedIds.has(comment._id.toString())
+      );
+
+      if (parentId) {
+        const parentComment = state.comments.results.find(
+          (comment) => comment._id === parentId
+        );
+
+        if (parentComment) {
+          parentComment.children = (parentComment.children || []).filter(
+            (childId) => !deletedIds.has(childId.toString())
+          );
+        }
+      }
+
+      state.activity.total_comments = Math.max(
+        0,
+        state.activity.total_comments - deletedCount
+      );
+      state.activity.total_parent_comments = Math.max(
+        0,
+        state.activity.total_parent_comments - deletedParentCount
+      );
+      state.totalParentCommentsLoaded = Math.max(
+        0,
+        state.totalParentCommentsLoaded - deletedParentCount
+      );
     },
   },
 });
@@ -111,8 +182,8 @@ export const {
   setComments,
   updateComments,
   setActivity,
-  setIsReplyLoaded,
-  setCommentsResults,
-  makeReplyLoadedFalse,
+  showRepliesForComment,
+  hideRepliesForComment,
+  deleteCommentFromState,
 } = selectedBlogSlice.actions;
 export default selectedBlogSlice.reducer;

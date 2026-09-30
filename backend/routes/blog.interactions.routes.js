@@ -2,6 +2,7 @@ import express from "express";
 import {
   addComment,
   deleteBlog,
+  deleteComment,
   getComments,
   getReplies,
   isLikedByUser,
@@ -16,6 +17,7 @@ blogInteractionRouter.post("/isLiked", Auth, isLikedByUser);
 
 blogInteractionRouter.post("/comment", Auth, addComment);
 blogInteractionRouter.post("/comment/get", getComments);
+blogInteractionRouter.delete("/comment/:comment_id", Auth, deleteComment);
 
 blogInteractionRouter.post("/reply", getReplies);
 

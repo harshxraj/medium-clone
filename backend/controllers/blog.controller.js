@@ -1,12 +1,12 @@
 import { nanoid } from "nanoid";
 import Blog from "../Schema/Blog.js";
 import User from "../Schema/User.js";
+import { moderateBlog } from "../utils/moderateBlog.js";
 
-export const createBlog = (req, res) => {
+export const createBlog = async (req, res) => {
   let authorId = req.user;
 
   let { title, des, banner, tags, content, draft, id } = req.body;
-  console.log(req.body);
 
   if (!title.length) {
     return res.status(403).json({ error: "You must provide a title!" });
@@ -33,6 +33,41 @@ export const createBlog = (req, res) => {
 
     if (!tags.length || tags.length > 10) {
       return res.status(403).json({ error: "You can provide at most 10 tags" });
+    }
+
+    try {
+      const moderation = await moderateBlog({
+        title,
+        des,
+        banner,
+        tags,
+        content,
+      });
+
+      if (moderation.flagged) {
+        console.warn("Blog publication blocked by moderation", {
+          authorId,
+          categories: moderation.categories,
+        });
+
+        return res.status(422).json({
+          error:
+            "This blog could not be published because its text or images may violate our content policy.",
+          code: "CONTENT_FLAGGED",
+        });
+      }
+    } catch (error) {
+      console.error("Blog moderation failed", {
+        code: error.code,
+        status: error.status,
+        message: error.message,
+      });
+
+      return res.status(503).json({
+        error:
+          "We could not check this blog right now. It has not been published; please try again shortly.",
+        code: "MODERATION_UNAVAILABLE",
+      });
     }
   }
 

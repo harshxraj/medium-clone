@@ -1,6 +1,7 @@
 import Blog from "../Schema/Blog.js";
 import Notification from "../Schema/Notification.js";
 import Comment from "../Schema/Comment.js";
+import mongoose from "mongoose";
 
 export const likeBlog = (req, res) => {
   let user_id = req.user;
@@ -83,10 +84,11 @@ export const addComment = (req, res) => {
 
   if (replying_to) {
     commentObj.parent = replying_to;
+    commentObj.isReply = true;
   }
 
   new Comment(commentObj).save().then(async (commentFile) => {
-    let { comment, commentedAt, children } = commentFile;
+    let { comment, commentedAt, children, parent, isReply } = commentFile;
 
     // If the comment is reply to some comment, then we won't increase the total_parent_comment count, otherwise we increase by 1
     Blog.findOneAndUpdate(
@@ -133,6 +135,8 @@ export const addComment = (req, res) => {
       _id: commentFile._id,
       user_id,
       children,
+      parent,
+      isReply,
     });
   });
 };
@@ -142,7 +146,9 @@ export const getComments = (req, res) => {
 
   let maxLimit = 5;
 
-  Comment.find({ blog_id, isReply: false })
+  // Use the parent relationship as the source of truth so replies created
+  // before isReply was set correctly do not appear as top-level comments.
+  Comment.find({ blog_id, parent: { $exists: false } })
     .populate(
       "commented_by",
       "personal_info.username personal_info.fullname personal_info.profile_img"
@@ -162,16 +168,12 @@ export const getComments = (req, res) => {
 };
 
 export const getReplies = (req, res) => {
-  let { _id, skip } = req.body;
-
-  let maxLimit = 5;
+  let { _id } = req.body;
 
   Comment.findOne({ _id })
     .populate({
       path: "children",
-      option: {
-        limit: maxLimit,
-        skip: skip,
+      options: {
         sort: { commentedAt: -1 },
       },
       populate: {
@@ -189,6 +191,94 @@ export const getReplies = (req, res) => {
       console.log(err);
       return res.status(500).json({ error: err.message });
     });
+};
+
+export const deleteComment = async (req, res) => {
+  const user_id = req.user;
+  const { comment_id } = req.params;
+
+  if (!mongoose.isValidObjectId(comment_id)) {
+    return res.status(400).json({ error: "Invalid comment id." });
+  }
+
+  try {
+    const comment = await Comment.findById(comment_id);
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found." });
+    }
+
+    if (comment.commented_by.toString() !== user_id) {
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own comments." });
+    }
+
+    const deletedCommentIds = [comment._id];
+    const seenCommentIds = new Set([comment._id.toString()]);
+    let childIds = comment.children || [];
+
+    while (childIds.length) {
+      const unseenChildIds = childIds.filter(
+        (childId) => !seenCommentIds.has(childId.toString())
+      );
+
+      if (!unseenChildIds.length) break;
+
+      unseenChildIds.forEach((childId) =>
+        seenCommentIds.add(childId.toString())
+      );
+
+      const childComments = await Comment.find({
+        _id: { $in: unseenChildIds },
+      }).select("_id children");
+
+      childIds = [];
+      childComments.forEach((childComment) => {
+        deletedCommentIds.push(childComment._id);
+        childIds.push(...childComment.children);
+      });
+    }
+
+    const parentId = comment.parent || null;
+    const deletedParentCount = parentId ? 0 : 1;
+
+    const deleteOperations = [
+      Comment.deleteMany({ _id: { $in: deletedCommentIds } }),
+      Notification.deleteMany({
+        $or: [
+          { comment: { $in: deletedCommentIds } },
+          { replied_on_comment: { $in: deletedCommentIds } },
+        ],
+      }),
+      Blog.findByIdAndUpdate(comment.blog_id, {
+        $pull: { comments: { $in: deletedCommentIds } },
+        $inc: {
+          "activity.total_comments": -deletedCommentIds.length,
+          "activity.total_parent_comments": -deletedParentCount,
+        },
+      }),
+    ];
+
+    if (parentId) {
+      deleteOperations.push(
+        Comment.findByIdAndUpdate(parentId, {
+          $pull: { children: comment._id },
+        })
+      );
+    }
+
+    await Promise.all(deleteOperations);
+
+    return res.status(200).json({
+      deleted_comment_ids: deletedCommentIds,
+      deleted_count: deletedCommentIds.length,
+      deleted_parent_count: deletedParentCount,
+      parent_id: parentId,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
 
 export const deleteBlog = (req, res) => {
